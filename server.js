@@ -106,6 +106,32 @@ app.post('/recipes', jsonParser, (req, res) => {
   res.status(201).json(item);
 });
 
+// create PUT endpoint for PUT requests to /recipes
+app.put('/recipes/:id', jsonParser, (req, res) => {
+  // validate request, checking for required fields
+  const requiredFields = ['name', 'id', 'ingredients'];
+  for (let i = 0; i < requiredFields.length; i++) {
+    let field = requiredFields[i];
+    if (!(field in req.body)) {
+      let message = `missing ${field} in body of request`;
+      console.error(message);
+      res.status(400).send(message);
+    }
+  }
+  if (req.params.id !== req.body.id) {
+    let message = `id in request path (${req.params.id}) must match id in request body (${req.body.id})`;
+    console.error(message);
+    res.status(400).send(message);
+  }
+  const itemUpdated = {
+    name: req.body.name,
+    id: req.body.id,
+    ingredients: req.body.ingredients
+  }
+  Recipes.update(itemUpdated);
+  res.status(204).json(itemUpdated);
+});
+
 app.delete('/recipes/:id', (req, res) => {
   Recipes.delete(req.params.id);
   console.log(`Deleted recipe \`${req.params.ID}\``);
